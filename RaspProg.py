@@ -67,7 +67,20 @@ def update_files():
         print("Failed to retrieve the page")
 
 
-def find_schedule_by_teacher_name(teacher_name, file_path, sheet_names, today):
+def find_schedule_by_teacher_name(teacher_name: str, file_path: str, sheet_names: list[str], today: str):
+    """Поиск расписания для преподавателя по дате.
+
+    Параметры
+    ---------
+    teacher_name: Имя преподавателя
+    file_path: Путь к файлу
+    sheet_names: Список листов для чтения
+    today: Дата
+
+    Возвращает
+    ----------
+    scheduleDay: Расписание на день
+    """
     scheduleDay = {}
     for sheet in sheet_names:
         try:
@@ -77,35 +90,45 @@ def find_schedule_by_teacher_name(teacher_name, file_path, sheet_names, today):
             continue
 
         for index, row in data.iterrows():
-            if teacher_name.lower() in str(row[3]).lower():
-                tName = data.iloc[index][3]
-                fIndex = 1
-                while pd.isnull(data.iloc[index - fIndex][3]):
-                    fIndex += 1
-                subject = data.iloc[index - fIndex][3]
-                subject_indx = index - fIndex
-                    
-                fIndex = 0
-                while pd.isnull(data.iloc[index - fIndex][0]):
-                    fIndex += 1
+            found = False
 
-                day = data.iloc[index - fIndex][0]
-                date = data.iloc[index - fIndex][1]
-                time = []
-                for time_index in range(subject_indx, index):
-                    time_entry = data.iloc[time_index][2]
-                    if pd.notnull(time_entry):
-                        time.append(time_entry)
+            for col_index, cell in enumerate(row):
+                if teacher_name.lower() in str(cell).lower():
+                    tName = cell
+                    tName_col_index = col_index
+                    found = True
+                    break
+            if not found:
+                continue
 
-                if pd.notnull(date) and date != 'nan':
-                    date = date.strftime('%Y-%m-%d')
+            tName = data.iloc[index][tName_col_index]
+            fIndex = 1
+            while pd.isnull(data.iloc[index - fIndex][tName_col_index]):
+                fIndex += 1
+            subject = data.iloc[index - fIndex][tName_col_index]
+            subject_indx = index - fIndex
+                
+            fIndex = 0
+            while pd.isnull(data.iloc[index - fIndex][0]):
+                fIndex += 1
 
-                if date == today:
-                    schedule_entry = f"{day}, {date}: {subject} в {time}, {tName}"
-                    if sheet in scheduleDay:
-                        scheduleDay[sheet].append(schedule_entry)
-                    else:
-                        scheduleDay[sheet] = [schedule_entry]               
+            day = data.iloc[index - fIndex][0]
+            date = data.iloc[index - fIndex][1]
+            time = []
+            for time_index in range(subject_indx, index):
+                time_entry = data.iloc[time_index][2]
+                if pd.notnull(time_entry):
+                    time.append(time_entry)
+
+            if pd.notnull(date) and date != 'nan':
+                date = date.strftime('%Y-%m-%d')
+
+            if date == today:
+                schedule_entry = f"{day}, {date}: {subject} в {time}, {tName}"
+                if sheet in scheduleDay:
+                    scheduleDay[sheet].append(schedule_entry)
+                else:
+                    scheduleDay[sheet] = [schedule_entry]               
     print(scheduleDay)
     return scheduleDay
 
