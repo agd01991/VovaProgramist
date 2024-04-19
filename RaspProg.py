@@ -67,10 +67,8 @@ def update_files():
         print("Failed to retrieve the page")
 
 
-def find_schedule_by_teacher_name(teacher_name, file_path, sheet_names):
-    today = datetime.today().strftime('%Y-%m-%d')
-    schedule = {}
-    subjects = {}
+def find_schedule_by_teacher_name(teacher_name, file_path, sheet_names, today):
+    scheduleDay = {}
     for sheet in sheet_names:
         try:
             data = pd.read_excel(file_path, sheet_name=sheet, header=None)
@@ -104,15 +102,12 @@ def find_schedule_by_teacher_name(teacher_name, file_path, sheet_names):
 
                 if date == today:
                     schedule_entry = f"{day}, {date}: {subject} в {time}, {tName}"
-                    if sheet in schedule:
-                        schedule[sheet].append(schedule_entry)
+                    if sheet in scheduleDay:
+                        scheduleDay[sheet].append(schedule_entry)
                     else:
-                        schedule[sheet] = [schedule_entry]
-                    if subject not in subjects:
-                        subjects[subject] = []                    
-    print(schedule)
-    print(subjects)
-    return schedule, subjects
+                        scheduleDay[sheet] = [schedule_entry]               
+    print(scheduleDay)
+    return scheduleDay
 
 def open_file_dialog():
     file_path = filedialog.askopenfilename(filetypes=[("Excel files", "*.xlsx")])
@@ -131,10 +126,8 @@ def process_and_show_schedule():
 
     save_config(teacher_name, file_path, last_update)
     sheet_names = ['1 курс', '1 курс ', '2 курс', '2 курс ', '3 курс', '3 курс ']
-    schedule, subjects = find_schedule_by_teacher_name(teacher_name, file_path, sheet_names)
-    output_text.delete('1.0', tk.END)
-
-    
+    schedule = find_schedule_by_teacher_name(teacher_name, file_path, sheet_names, datetime.today().strftime('%Y-%m-%d'))
+    output_text.delete('1.0', tk.END)    
 
     if schedule:
         for course, schedule_list in schedule.items():
@@ -146,6 +139,51 @@ def process_and_show_schedule():
         output_text.insert(tk.END, "На сегодня пар нет\n")
 
 default_teacher_name, default_file_path, last_update = load_config()
+
+def get_start_of_week(today):
+    # weekday() возвращает день недели в формате, где понедельник это 0, воскресенье - 6
+    weekday = today.weekday()
+
+    # Если сегодня воскресенье, начинаем с понедельника следующей недели
+    if weekday == 6:
+        start_of_week = today + timedelta(days=1)
+    else:
+        # Иначе, откатываемся назад к последнему понедельнику
+        start_of_week = today - timedelta(days=weekday)
+
+    return start_of_week
+
+def show_weekly_schedule():
+    teacher_name = teacher_name_entry.get()
+    file_path = file_path_entry.get()
+    if not file_path or not teacher_name:
+        messagebox.showerror("Ошибка", "Пожалуйста, проверьте введенные данные")
+        return
+
+    # Получаем расписание на неделю начиная с сегодняшнего дня
+    schedule_week = {}
+    today = datetime.today()
+    start_of_week = get_start_of_week(today)
+    sheet_names = ['1 курс', '1 курс ', '2 курс', '2 курс ', '3 курс', '3 курс ']
+    for i in range(7):  # для каждого дня в неделе
+        day = start_of_week + timedelta(days=i)
+        schedule_day = find_schedule_by_teacher_name(teacher_name, file_path, sheet_names, day.strftime('%Y-%m-%d'))
+        if schedule_day:
+            schedule_week[day.strftime('%Y-%m-%d')] = schedule_day
+    
+    # Отображение расписания
+    output_text.delete('1.0', tk.END)
+    if schedule_week:
+        for date, schedules in schedule_week.items():
+            output_text.insert(tk.END, f"Расписание на {date}:\n")
+            for course, schedule_list in schedules.items():
+                output_text.insert(tk.END, f"Курс {course}:\n")
+                for schedule_item in schedule_list:
+                    output_text.insert(tk.END, schedule_item + "\n")
+                output_text.insert(tk.END, "\n")
+    else:
+        output_text.insert(tk.END, "На эту неделю пар нет\n")
+
 
 if check_update_needed(last_update):
     update_files()
@@ -170,8 +208,10 @@ file_path_entry = tk.Entry(root)
 file_path_entry.insert(0, default_file_path)
 file_path_entry.pack()
 
-process_button = tk.Button(root, text="Показать расписание", command=process_and_show_schedule)
+process_button = tk.Button(root, text="Показать расписание на сегодня", command=process_and_show_schedule)
 process_button.pack()
+week_schedule_button = tk.Button(root, text="Показать расписание на неделю", command=show_weekly_schedule)
+week_schedule_button.pack()
 
 output_text = tk.Text(root, height=10, width=50)
 output_text.pack()
