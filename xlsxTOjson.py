@@ -65,25 +65,13 @@ for course, dates in schedule.items():
                 subject = a_class['subject']
                 classroom = a_class['classroom']
 
-                # # Создание вложенных словарей по ключам
-                # if teacher not in new_schedule:
-                #     new_schedule[teacher] = {}
-                # if date not in new_schedule[teacher]:
-                #     new_schedule[teacher][date] = {}
-                # if course not in new_schedule[teacher][date]:
-                #     new_schedule[teacher][date][course] = {}
-                # if subject not in new_schedule[teacher][date][course]:
-                #     new_schedule[teacher][date][course][subject] = {}
-
-                # # Добавление времени и аудитории
-                # new_schedule[teacher][date][course][subject][time] = subject + ', ' + classroom
                 if teacher not in new_schedule:
                     new_schedule[teacher] = {}     
                 if date not in new_schedule[teacher]:
                     new_schedule[teacher][date] = {}            
-                if subject not in new_schedule[teacher][date]:
-                    new_schedule[teacher][date][subject] = {}
-                new_schedule[teacher][date][subject][time] = subject + ', ' + classroom + ', ' + course
+                if time not in new_schedule[teacher][date]:
+                    new_schedule[teacher][date][time] = {}
+                new_schedule[teacher][date][time][subject] = subject + ', ' + classroom + ', ' + course
 
 # Вывод нового словаря
 # print(new_schedule['Геворкян Э.А.']['2024-04-01'])
@@ -99,32 +87,24 @@ for key in new_schedule.keys():
 
 # print(new_schedule[key_found])
 # получил препода,
-# prepod -> date -> subject -> time -> class
+# prepod -> date -> time -> subject -> class
 
 today_date = '2024-04-15'
 
 # print(new_schedule[key_found]['2024-04-15'])
 
 if key_found:
-    # Проверяем, есть ли данные на сегодняшний день для найденного учителя
     schedule_today = new_schedule.get(key_found, {}).get(today_date, None)
     if schedule_today:
-        subjects_on_date = new_schedule[key_found][today_date]
-        unique_subjects = set(subjects_on_date.keys())
+        unique_subjects = set()
         print(f"Расписание для {key_found} на {today_date}:")
-        for subject, times in schedule_today.items():
-            for time, classroom in times.items():
+        for time, subjects in schedule_today.items():
+            for subject, classroom in subjects.items():
+                unique_subjects.add(subject)
+                print(unique_subjects)
                 print(f"  {time} : {classroom if classroom else 'не указана аудитория'}")
+        print(f"unique_subjects = {len(unique_subjects)}")
     else:
         print(f"На {today_date} нет расписания для {key_found}")
 else:
     print("Учитель с таким именем не найден")
-
-# if key_found and key_found in new_schedule and today_date in new_schedule[key_found]:
-#     subjects_on_date = new_schedule[key_found][today_date]
-#     unique_subjects = set(subjects_on_date.keys())  # Используем множество для уникальности предметов
-#     number_of_unique_subjects = len(unique_subjects)  # Получаем количество уникальных предметов
-
-#     print(f"Количество уникальных предметов на {today_date} для {key_found}: {number_of_unique_subjects}")
-# else:
-#     print(f"Нет данных для {key_found} на {today_date} или учитель не найден")
