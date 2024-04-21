@@ -52,4 +52,44 @@ for sheet in sheet_names:
 
     
 # print(schedule['1 курс']['2024-04-01']['11:40-13:10'][0])
-print(schedule)
+# print(schedule)
+
+new_schedule = {}
+
+# Перебор данных в исходном словаре
+for course, dates in schedule.items():
+    for date, times in dates.items():
+        for time, classes in times.items():
+            for a_class in classes:
+                teacher = a_class['teacher_name']
+                subject = a_class['subject']
+                classroom = a_class['classroom']
+
+                # Создание вложенных словарей по ключам
+                if teacher not in new_schedule:
+                    new_schedule[teacher] = {}
+                if date not in new_schedule[teacher]:
+                    new_schedule[teacher][date] = {}
+                if course not in new_schedule[teacher][date]:
+                    new_schedule[teacher][date][course] = {}
+                if subject not in new_schedule[teacher][date][course]:
+                    new_schedule[teacher][date][course][subject] = {}
+
+                # Добавление времени и аудитории
+                new_schedule[teacher][date][course][subject][time] = subject + ', ' + classroom
+
+# Вывод нового словаря
+# print(new_schedule['Геворкян Э.А.']['2024-04-01'])
+# print(new_schedule.keys())
+# print('гевор' in str(new_schedule.keys()).lower())
+key_found = None
+for key in new_schedule.keys():
+    if 'гевор' in key.lower():  # Преобразуем каждый ключ к нижнему регистру и проверяем вхождение
+        key_found = key
+        break
+
+print(key_found) 
+
+print(new_schedule[key_found])
+# получил препода,
+# prepod -> date -> subject -> time -> class
