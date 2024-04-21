@@ -1,12 +1,5 @@
-import tkinter as tk
-from tkinter import filedialog, messagebox
 import pandas as pd
-from datetime import datetime, timedelta
-import requests
-from bs4 import BeautifulSoup
-from xls2xlsx import XLS2XLSX
-import os
-import configparser
+from datetime import datetime
 import re
 
 file_path = 'C:/Users/agd01/Documents/VovaProgramist/Raspisanie-FIT-ochnaya-f.o-23_24-vesenniy-sem.-APREL.xlsx'
