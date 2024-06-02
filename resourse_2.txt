@@ -1,5 +1,7 @@
-Alice 1000.00
-Bob 500.50
+Alice 1000.0
+Bob 500.5
 Charlie 1200.75
-David 300.00
-Eve 1500.00
+David 300.0
+Eve 1450.0
+Андрей 1050.0
+Vova 4000.0
