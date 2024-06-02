@@ -1,1 +1,6 @@
-Alice has 2000.00.
+Alice 11000.0
+Bob 500.5
+Charlie 1200.75
+David 300.0
+Eve 1450.0
+Vova 4000.0

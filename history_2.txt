@@ -1,7 +1,0 @@
-Created client 0 for Андрей
-Deposited 1000.0 for Андрей
-Transferred 50.0 from Eve to Андрей
-Created client 0 for Vova
-Deposited 2000.0 for Alice
-Deposited 2000.0 for Vova
-Transferred 2000.0 from Alice to Vova

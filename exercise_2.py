@@ -15,16 +15,9 @@ def load_clients():
         print("File not found. Starting with an empty client list.")
 
 def save_clients():
-    with open("resourse_2.txt", "w") as file:
+    with open("result_2.txt", "w") as file:
         for name, balance in clients.items():
             file.write(f"{name} {balance}\n")
-
-def save_history(action, name, amount=0, target_name=None):
-    with open("history_2.txt", "a") as file:
-        if target_name:
-            file.write(f"{action} {amount} from {name} to {target_name}\n")
-        else:
-            file.write(f"{action} {amount} for {name}\n")
 
 def update_client_list():
     client_list_var.set(list(clients.keys()))
@@ -37,7 +30,6 @@ def create_client():
         clients[name] = 0.0
         update_client_list()
         save_clients()
-        save_history("Created client", name)
         messagebox.showinfo("Success", f"Client {name} created.")
 
 def deposit():
@@ -46,7 +38,6 @@ def deposit():
     if name:
         clients[name] += amount
         save_clients()
-        save_history("Deposited", name, amount)
         messagebox.showinfo("Success", f"{amount} deposited to {name}.")
     else:
         messagebox.showerror("Error", "Please select a client.")
@@ -58,7 +49,6 @@ def withdraw():
         if clients[name] >= amount:
             clients[name] -= amount
             save_clients()
-            save_history("Withdrawn", name, amount)
             messagebox.showinfo("Success", f"{amount} withdrawn from {name}.")
         else:
             messagebox.showerror("Error", "Insufficient funds.")
@@ -82,7 +72,6 @@ def transfer():
             clients[name_from] -= amount
             clients[name_to] += amount
             save_clients()
-            save_history("Transferred", name_from, amount, name_to)
             messagebox.showinfo("Success", f"{amount} transferred from {name_from} to {name_to}.")
         else:
             messagebox.showerror("Error", "Insufficient funds.")
@@ -94,7 +83,6 @@ def apply_interest():
     for client in clients:
         clients[client] += clients[client] * rate / 100
     save_clients()
-    save_history("Applied interest", "all clients", rate)
     messagebox.showinfo("Success", f"Interest of {rate}% applied to all clients.")
 
 def clear_fields():
