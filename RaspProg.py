@@ -47,22 +47,23 @@ def update_files():
     response = requests.get(url)
     if response.status_code == 200:
         soup = BeautifulSoup(response.text, 'html.parser')
-        bachelor_block = soup.find('div', class_='mb-5')
-        h2 = bachelor_block.find('h2')
-        if h2 and h2.text.strip() == "Бакалавриат":
-            download_items = bachelor_block.find_all('div', class_='download__item')
-            for item in download_items:
-                link = item.find('a', class_='download__src')
-                if link and 'href' in link.attrs and (link['href'].endswith('.xlsx') or link['href'].endswith('.xls')):
-                    file_url = base_url + link['href']
-                    file_name = file_url.split('/')[-1]
-                    if download_file(file_url, file_name):
-                        if file_name.endswith('.xls'):
-                            new_file_name = file_name[:-3] + 'xlsx'
-                            x2x = XLS2XLSX(file_name)
-                            x2x.to_xlsx(new_file_name)
-                            os.remove(file_name)
-                        save_config(default_teacher_name, default_file_path, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
+        
+        sections = soup.find_all('h2')
+        for section in sections:
+            if "Бакалавриат" in section.text:
+                download_items = section.find_next_sibling('div', class_='download').find_all('div', class_='download__item')
+                for item in download_items:
+                    link = item.find('a', class_='download__src')
+                    if link and 'href' in link.attrs and (link['href'].endswith('.xlsx') or link['href'].endswith('.xls')):
+                        file_url = base_url + link['href']
+                        file_name = file_url.split('/')[-1]
+                        if download_file(file_url, file_name):
+                            if file_name.endswith('.xls'):
+                                new_file_name = file_name[:-3] + 'xlsx'
+                                x2x = XLS2XLSX(file_name)
+                                x2x.to_xlsx(new_file_name)
+                                os.remove(file_name)
+                            save_config(default_teacher_name, default_file_path, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
     else:
         print("Failed to retrieve the page")
 
